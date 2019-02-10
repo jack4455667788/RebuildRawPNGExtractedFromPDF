@@ -1,71 +1,13 @@
-PNGDebugger
-===========
-### Description
-Read PNG headers, Check CRC
+# RebuildRawPNGExtractedFromPDF
 
-Tested on Windows MinGW Compiler
+    This is a very dirty script / app hack that will allow you to re-extract the raw png's in your pdf (put there by things like img2pdf py) and re-construct them to be identical or mostly identical to the originals.
 
-### Usage
-pngDebugger (--verbose) file1.png file2.png file3.png ...
+    I noticed that when reextracting raw pdf object data, that if you inserted JP2 files to begin with that the files will be byte for byte identical when inserted in the pdf objects. However, if you use a program like img2pdf to insert raw png into the objects instead, their header/footer and chunk header/footers are stripped.
 
-### Sample Run (output) on test/example.png
-```
->> pngdebugger ../test/example.png
-        ----
-file-path=../test/example.png
-file-size=183960 bytes
+    Apps like mutool will reconstruct the png properly as well, if you just want to get extracting without all the hassle, but I was interested in making sure that no "loss" was occurring due to re-encoding of any kind so I wasted my time on this. 
 
-0x00000000      png-signature=0x89504E470D0A1A0A
-
-0x00000008      chunk-length=0x0000000D (13)
-0x0000000C      chunk-type='IHDR'
-0x0000001D      crc-code=0x15141527
->> (CRC CHECK)  crc-computed=0x15141527         =>      CRC OK!
-
-
-0x00000021      chunk-length=0x0002CE5F (183903)
-0x00000025      chunk-type='IDAT'
-0x0002CE88      crc-code=0xD16771CA
->> (CRC CHECK)  crc-computed=0xD16771CA         =>      CRC OK!
-
-
-0x0002CE8C      chunk-length=0x00000000 (0)
-0x0002CE90      chunk-type='IEND'
-0x0002CE94      crc-code=0xAE426082
->> (CRC CHECK)  crc-computed=0xAE426082         =>      CRC OK!
-```
-
-### Sample Run (output) with --verbose flag (Detailed IHDR types)
-```
->> pngdebugger --verbose ../test/example.png
-        ----
-file-path=../test/example.png
-file-size=183960 bytes
-
-0x00000000      png-signature=0x89504E470D0A1A0A
-
-0x00000008      chunk-length=0x0000000D (13)
-0x0000000C      chunk-type='IHDR'
-0x00000010      width=0x00000320        (800)
-0x00000014      height=0x00000258       (600)
-0x00000018      bit-depth=8
-0x00000019      color-type=2    (truecolour)
-0x0000001A      compression-method=0    (deflate/inflate)
-0x0000001B      filter-method=0         (adaptive)
-0x0000001C      interlace-method=0      (standard)
-0x0000001D      crc-code=0x15141527
->> (CRC CHECK)  crc-computed=0x15141527         =>      CRC OK!
-
-
-0x00000021      chunk-length=0x0002CE5F (183903)
-0x00000025      chunk-type='IDAT'
-0x0002CE88      crc-code=0xD16771CA
->> (CRC CHECK)  crc-computed=0xD16771CA         =>      CRC OK!
-
-
-0x0002CE8C      chunk-length=0x00000000 (0)
-0x0002CE90      chunk-type='IEND'
-0x0002CE94      crc-code=0xAE426082
->> (CRC CHECK)  crc-computed=0xAE426082         =>      CRC OK!
-```
-
+    It mostly works by a modified copy of png-debugger to determine the correct chunk header locations and correct crc's.
+    
+    This is super raw, and worked for my purposes (rebuilding raw png's extracted from pdf that match the filehashes of the originals).  I leave it here in the hopes that it will be useful to someone else in the future (why oh why did I do any of this in bash?!?!?)
+    
+    Everything is in the one .bash script.  The other things are the modified tool dependencies (and code).  There are other tools that the script uses, and specifically the version of pdfimages must have the -raw option to be useful (or the -all option, but I couldn't find code like that anywhere)
